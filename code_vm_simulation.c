@@ -152,55 +152,59 @@ void main(){
                 tmp = (int) pow(2.0,count);
 
 
-int alloId_exist = 0;
+                int alloId_exist = 0;
 
-for(int i = 0; i < sizeof(physic_mem) ; i++) {
-if (physic_mem[i] == alloId + '0' ) {
-alloId_exist = 1;
-break;
-}
+                for(int i = 0; i < sizeof(physic_mem) ; i++) {
+                if (physic_mem[i] == alloId + '0' ) {
+                alloId_exist = 1;
+                break;
+                }
 
-}
-
-if(alloId_exist) {
-
-int search_flag = 0;
-
-LRU lru_tmp;
+                }
 
 
-for(int i = lru_start; i < lru_pointer; i++) {
-    if(lru[i].alloId == alloId + '0') {
-        lru_tmp.pid = lru[i].pid;
-        lru_tmp.alloId = lru[i].alloId;
-        lru_tmp.startLoca = lru[i].startLoca;
-        lru_tmp.endLoca = lru[i].endLoca;
-        search_flag = 1;
-    }
-    
-    if(search_flag == 1 && i != lru_pointer - 1) {
-        lru[i].pid = lru[i+1].pid;
-        lru[i].alloId = lru[i+1].alloId;
-        lru[i].startLoca = lru[i+1].startLoca;
-        lru[i].endLoca = lru[i+1].endLoca;
-    }
-    else if(search_flag == 1 && i == lru_pointer - 1) {
-        lru[i].pid = lru_tmp.pid;
-        lru[i].alloId = lru_tmp.alloId;
-        lru[i].startLoca = lru_tmp.startLoca;
-        lru[i].endLoca = lru_tmp.endLoca;
-    }
-
-}
-}
-
-else {
-
-page_fault++;
+//여기서부터는 해당 AID가 메모리에 있는지 없는지의 여부에 따라 lru의 출력 처리를 다르게 하는 부분입니다. 
 
 
+                if(alloId_exist) {
 
-                while(tmp > physic_null_counter) {
+                int search_flag = 0;
+
+                LRU lru_tmp;
+
+
+                for(int i = lru_start; i < lru_pointer; i++) {
+                    if(lru[i].alloId == alloId + '0') {
+                        lru_tmp.pid = lru[i].pid;
+                        lru_tmp.alloId = lru[i].alloId;
+                        lru_tmp.startLoca = lru[i].startLoca;
+                        lru_tmp.endLoca = lru[i].endLoca;
+                        search_flag = 1;
+                    }
+                    
+                    if(search_flag == 1 && i != lru_pointer - 1) {
+                        lru[i].pid = lru[i+1].pid;
+                        lru[i].alloId = lru[i+1].alloId;
+                        lru[i].startLoca = lru[i+1].startLoca;
+                        lru[i].endLoca = lru[i+1].endLoca;
+                    }
+                    else if(search_flag == 1 && i == lru_pointer - 1) {
+                        lru[i].pid = lru_tmp.pid;
+                        lru[i].alloId = lru_tmp.alloId;
+                        lru[i].startLoca = lru_tmp.startLoca;
+                        lru[i].endLoca = lru_tmp.endLoca;
+                    }
+
+                }
+                }
+
+                else {
+
+                page_fault++;
+
+
+
+                    while(tmp > physic_null_counter) {
                     for(int i = 0; i< sizeof(pid_page_valid[lru[lru_start].pid]); i++) {
                         if(pid_page_aid[lru[lru_start].pid][i] == lru[lru_start].alloId) {
                             pid_page_valid[lru[lru_start].pid][i] = '0';
@@ -252,7 +256,10 @@ page_fault++;
 }
 
             } 
-        
+       
+//출력과 관련된 코드입니다.
+
+ 
             printf("* Input : Pid [%d] Function [%s] Alloc ID [%d] Page Num[%d]\n", pid, function==1?"ALLOCATION":"ACCESS", alloId, demandPage);
 
 
