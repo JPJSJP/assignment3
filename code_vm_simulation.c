@@ -4,6 +4,8 @@
 #include <math.h>
 
 
+//LRU에 대한 구조체입니다.
+
 typedef struct LRU{
     int pid;
     char alloId;
@@ -13,6 +15,8 @@ typedef struct LRU{
 
 
 void main(){
+
+//과제에 사용한 변수를 선언하고 정의하는 과정입니다.
     char buff[1024];
     size_t n_size;
     
@@ -27,6 +31,7 @@ void main(){
     
     int physic_null_counter = 0;
 
+//1KB의 물리메모리의 출력 형식을 만듭니다.
 
     char physic_mem[42];
     for(int i = 0; i < sizeof(physic_mem); i++) {
@@ -48,29 +53,25 @@ void main(){
 
 
 
-
     char pid_page_aid[5][82];
     char pid_page_valid[5][82];
 
-   
-/*
-    char[16] lru;
-    char** lru_pointer = lru;
-    char** lru_start;
-*/
 
 
     int page_fault = 0;
 
     
 
+//여기서부터 TXT파일을 읽어들이게 됩니다.
+
     while(fgets (buff, 1024, stdin)) {
         char line_tmp[32];
+
+//첫번재 라인에선 프로세스의 수를 읽고 그와 관련된 작업을 처리합니다.
+
         if(line_count == 0) {
             process_count = atoi(strtok(buff, "\t ")); 
             line_count++;
-
-            
 
 
             for(int i = 0; i < process_count; i++) {
@@ -96,27 +97,30 @@ void main(){
                 pid_page_aid[i][81] = '\0';    
             }
         }
+
+//두번째 라인에서는 인스트럭션의 수를 읽습니다.
+
         else if (line_count == 1) {
             inst_count = atoi(strtok(buff, "\t "));
             lru = malloc(sizeof(LRU)*inst_count);
 
             line_count++;
         }
+
+//여기서부턴 세번째 라인부터 마지막 라인까지 인스트럭션을 처리합니다.
+
         else {
-            //printf("%s\n", buff);
             pid = atoi(strtok(buff, "\t "));
             function = atoi(strtok(NULL, "\t "));
             alloId = atoi(strtok(NULL, "\t "));
-           // printf("%d%d%d\n\n",pid, function,alloId);
             if(function == 1) {
-                //ALLOCATION
+//ALLOCATION
                 demandPage = atoi(strtok(NULL, "\t "));
                 int aid_counter = 0;
                 for(int i = 0; i < sizeof(pid_page_aid[pid]); i++) {
                     if (aid_counter == demandPage) {break;}
                     else if (pid_page_aid[pid][i] == '_') {
-                        pid_page_aid[pid][i] = alloId + '0';
-                        //sprintf(pid_page_aid[pid][i], "%d", alloId);
+                        pid_page_aid[pid][i] = alloId + '0';    
                         aid_counter++;
                         pid_page_valid[pid][i] = '0';
                     }
@@ -126,7 +130,7 @@ void main(){
 
             }
             else {
-
+//ACCESS
                 demandPage = 0;
                 int physic_counter = 0; 
                 for(int i = 0; i < sizeof(pid_page_aid[pid]); i++) {
@@ -163,7 +167,7 @@ if(alloId_exist) {
 int search_flag = 0;
 
 LRU lru_tmp;
-//lru_tmp = malloc(sizeof(LRU));
+
 
 for(int i = lru_start; i < lru_pointer; i++) {
     if(lru[i].alloId == alloId + '0') {
@@ -193,9 +197,6 @@ for(int i = lru_start; i < lru_pointer; i++) {
 else {
 
 page_fault++;
-
-
-
 
 
 
@@ -253,39 +254,53 @@ page_fault++;
             } 
         
             printf("* Input : Pid [%d] Function [%s] Alloc ID [%d] Page Num[%d]\n", pid, function==1?"ALLOCATION":"ACCESS", alloId, demandPage);
-            printf("%-30s", ">> Physical Memory : "); printf("%s\n", physic_mem);
+
+
+            printf("%-30s", ">> Physical Memory : "); 
+
+
+            for(int i = 0; i < sizeof(physic_mem)-1; i++) {
+               
+                    if((physic_mem[i] == '_' || physic_mem[i] == '|') || (physic_mem[i] >= 48 && physic_mem[i] <= 57)) {
+                        printf("%c", physic_mem[i]);
+                    }
+                    else {printf("%d", physic_mem[i] - '0');}
+                     
+            }
+            printf("\n");
+        
+
 
             for(int i = 0; i < process_count; i++) {
-                printf(">> pid(%d) %-20s", i, "Page Table(AID) : "); printf("%s\n", pid_page_aid[i]);
-                printf(">> pid(%d) %-20s", i, "Page Table(Valid) : "); printf("%s\n", pid_page_valid[i]);
+
+                printf(">> pid(%d) %-20s", i, "Page Table(AID) : "); 
+
+                for(int k = 0; k < sizeof(pid_page_aid[i]) -1; k++) {
+                    if((pid_page_aid[i][k] == '_' || pid_page_aid[i][k] == '|') || (pid_page_aid[i][k] >= 48 && pid_page_aid[i][k] <= 57)) {
+                        printf("%c", pid_page_aid[i][k]);
+                    }
+                    else {printf("%d", pid_page_aid[i][k] - '0');}
+                } 
+                    printf("\n");
+
+
+                    printf(">> pid(%d) %-20s", i, "Page Table(Valid) : "); printf("%s\n", pid_page_valid[i]);
+
             }
+
     
             printf("%-30s", ">> LRU : ");
             for(int i = lru_start; i < lru_pointer; i++) {
-                printf("%c:%i-%i ", lru[i].alloId, lru[i].startLoca, lru[i].endLoca);
+                if(lru[i].alloId >= 48 && lru[i].alloId <= 57) {
+                    printf("%c:%i-%i ", lru[i].alloId, lru[i].startLoca, lru[i].endLoca);
+                }
+                else {printf("%i:%i-%i ", lru[i].alloId - '0', lru[i].startLoca, lru[i].endLoca);}
             }
             printf("\n\n");
 
-
-
-            //line_count++;
-
         }
-
-
-
-
     }
 
     printf("page fault = %d\n\n", page_fault);
 
-
-
-
-/*    printf("%-30s”, “>> Physical Memory : "); printf(현재 Physical Memory 현황 출력);
-    printf(">> pid(%d) %-20s",pid, "Page Table(AID) : "); printf(현재 Page Table 현황 출력);
-    printf(">> pid(%d) %-20s",pid, "Page Table(Valid) : "); printf(현재 Page Table 현황 출력);
-    printf("%-30s", ">> LRU : ");
-    printf(LRU list 현황 출력);
-*/
 }
